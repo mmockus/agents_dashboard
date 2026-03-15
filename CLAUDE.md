@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-03-15
 
 ## Active Technologies
+- Node.js 22 (server), React 18 (frontend) + Express 4, `ws` 8, `cors` 2 (server); React + Vite + Tailwind + Framer Motion (frontend) (002-cross-platform-docker)
+- In-memory (server); no database (002-cross-platform-docker)
 
 - JavaScript ES Modules (Node.js 20+) + React 18 + JSX + Express, ws, Framer Motion, Tailwind CSS (existing) + `google-auth-library` (new, server only) (001-google-ai-usage)
 
@@ -22,6 +24,7 @@ npm test && npm run lint
 JavaScript ES Modules (Node.js 20+) + React 18 + JSX: Follow standard conventions
 
 ## Recent Changes
+- 002-cross-platform-docker: Added Node.js 22 (server), React 18 (frontend) + Express 4, `ws` 8, `cors` 2 (server); React + Vite + Tailwind + Framer Motion (frontend)
 
 - 001-google-ai-usage: Added JavaScript ES Modules (Node.js 20+) + React 18 + JSX + Express, ws, Framer Motion, Tailwind CSS (existing) + `google-auth-library` (new, server only)
 
