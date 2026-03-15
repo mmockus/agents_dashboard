@@ -1,0 +1,35 @@
+{
+  "description": "Telemetry hooks for Agents Dashboard - reports Claude Code activity to the monitoring dashboard",
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "/Users/michaelmockus/Development/agents_dashboard/hooks/telemetry-session-start.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "/Users/michaelmockus/Development/agents_dashboard/hooks/telemetry-tool-use.sh",
+        "matcher": {
+          "tool_name": ".*"
+        }
+      }
+    ],
+    "Notification": [
+      {
+        "type": "command",
+        "command": "/Users/michaelmockus/Development/agents_dashboard/hooks/telemetry-notification.sh",
+        "matcher": {
+          "type": "idle_prompt"
+        }
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "/Users/michaelmockus/Development/agents_dashboard/hooks/telemetry-session-end.sh"
+      }
+    ]
+  }
+}

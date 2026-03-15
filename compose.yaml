@@ -1,0 +1,22 @@
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ${HOME}/.claude/.credentials.json:/home/node/.claude/.credentials.json:ro
+    environment:
+      - PORT=3001
+      - HOME=/home/node
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    restart: unless-stopped
