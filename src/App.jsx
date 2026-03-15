@@ -63,7 +63,6 @@ function App() {
     activities: liveActivities,
     rateLimit: liveRateLimit,
     subscription: liveSubscription,
-    googleQuota: liveGoogleQuota,
     isConnected,
     serverAvailable,
     lastRefresh: liveLastRefresh,
@@ -256,8 +255,8 @@ function App() {
             {/* Subscription Usage */}
             <SubscriptionUsage subscription={liveSubscription} />
 
-            {/* Google AI Quota Usage */}
-            <GoogleAIUsage googleQuota={liveGoogleQuota} />
+            {/* Google AI Usage */}
+            <GoogleAIUsage />
 
             {/* Activity Feed */}
             <div>

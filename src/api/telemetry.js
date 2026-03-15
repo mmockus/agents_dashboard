@@ -127,18 +127,6 @@ class TelemetryClient {
     }
   }
 
-  // Get Google AI quota usage
-  async getGoogleQuota() {
-    try {
-      const response = await fetch(`${API_URL}/api/google-quota`)
-      if (!response.ok) throw new Error('Failed to fetch Google AI quota')
-      return await response.json()
-    } catch (error) {
-      console.error('[Telemetry] Failed to fetch Google AI quota:', error)
-      return { configured: false, data: null, error: error.message, fetchedAt: null }
-    }
-  }
-
   // Check if server is available
   async isServerAvailable() {
     const health = await this.getHealth()

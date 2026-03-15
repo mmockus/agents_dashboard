@@ -35,7 +35,6 @@ export function useAgentData(refreshInterval = 5000) {
   const [activities, setActivities] = useState([])
   const [rateLimit, setRateLimit] = useState(null)
   const [subscription, setSubscription] = useState(null)
-  const [googleQuota, setGoogleQuota] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState(null)
@@ -48,12 +47,11 @@ export function useAgentData(refreshInterval = 5000) {
     setServerAvailable(available)
 
     if (available) {
-      const [agentsData, activitiesData, rateLimitData, subscriptionData, googleQuotaData] = await Promise.all([
+      const [agentsData, activitiesData, rateLimitData, subscriptionData] = await Promise.all([
         telemetry.getAgents(),
         telemetry.getActivities(50),
         telemetry.getRateLimit(),
-        telemetry.getSubscription(),
-        telemetry.getGoogleQuota()
+        telemetry.getSubscription()
       ])
 
       // Always replace agents list with server data (clears stale agents)
@@ -61,7 +59,6 @@ export function useAgentData(refreshInterval = 5000) {
       setActivities(activitiesData.length > 0 ? activitiesData : mockActivities)
       setRateLimit(rateLimitData.isLimited ? rateLimitData : null)
       setSubscription(subscriptionData)
-      setGoogleQuota(googleQuotaData)
     } else {
       // Use mock data when server is unavailable
       setAgents(mockAgents)
@@ -90,9 +87,6 @@ export function useAgentData(refreshInterval = 5000) {
         setActivities(message.data.activities?.length > 0 ? message.data.activities : mockActivities)
         if (message.data.subscription) {
           setSubscription(message.data.subscription)
-        }
-        if (message.data.googleQuota) {
-          setGoogleQuota(message.data.googleQuota)
         }
         setLastRefresh(new Date())
         break
@@ -152,10 +146,6 @@ export function useAgentData(refreshInterval = 5000) {
         setSubscription(message.data)
         break
 
-      case 'google-quota:update':
-        setGoogleQuota(message.data)
-        break
-
       default:
         break
     }
@@ -204,7 +194,6 @@ export function useAgentData(refreshInterval = 5000) {
     activities,
     rateLimit,
     subscription,
-    googleQuota,
     isConnected,
     isLoading,
     lastRefresh,

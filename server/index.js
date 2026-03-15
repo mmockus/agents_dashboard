@@ -3,7 +3,6 @@ import cors from 'cors'
 import { WebSocketServer } from 'ws'
 import { createServer } from 'http'
 import { SubscriptionPoller } from './subscriptionPoller.js'
-import { GoogleAIQuotaPoller } from './googleAIQuotaPoller.js'
 
 const app = express()
 const server = createServer(app)
@@ -30,10 +29,6 @@ function broadcast(type, data) {
 // Subscription usage poller
 const subscriptionPoller = new SubscriptionPoller(broadcast)
 subscriptionPoller.start()
-
-// Google AI quota poller
-const googleAIQuotaPoller = new GoogleAIQuotaPoller((data) => broadcast('google-quota:update', data))
-googleAIQuotaPoller.start()
 
 // Format relative time
 function formatRelativeTime(date) {
@@ -293,11 +288,6 @@ app.get('/api/subscription', (req, res) => {
   res.json(subscriptionPoller.getUsage())
 })
 
-// GET Google AI quota usage
-app.get('/api/google-quota', (req, res) => {
-  res.json(googleAIQuotaPoller.getQuota())
-})
-
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -318,8 +308,7 @@ wss.on('connection', (ws) => {
     data: {
       agents: Array.from(agents.values()),
       activities: activities.slice(0, 50),
-      subscription: subscriptionPoller.getUsage(),
-      googleQuota: googleAIQuotaPoller.getQuota()
+      subscription: subscriptionPoller.getUsage()
     }
   }))
 
@@ -346,7 +335,6 @@ server.listen(PORT, () => {
 ║    GET  /api/activities      - List activities            ║
 ║    POST /api/activities      - Log activity               ║
 ║    GET  /api/subscription    - Claude subscription usage  ║
-║    GET  /api/google-quota    - Google AI quota usage      ║
 ║    GET  /api/health          - Health check               ║
 ╚═══════════════════════════════════════════════════════════╝
   `)
