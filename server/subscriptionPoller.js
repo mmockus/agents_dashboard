@@ -1,11 +1,5 @@
-import { readFile } from 'fs/promises'
-import { homedir } from 'os'
-import { join } from 'path'
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import { resolveCredentials } from './credentialResolver.js'
 
-const execAsync = promisify(exec)
-const CREDENTIALS_PATH = join(homedir(), '.claude', '.credentials.json')
 const USAGE_API_URL = 'https://api.anthropic.com/api/oauth/usage'
 const POLL_INTERVAL = 5 * 60 * 1000 // 5 minutes
 const BETA_HEADER = 'oauth-2025-04-20,fine-grained-tool-streaming-2025-05-14'
@@ -28,42 +22,11 @@ export class SubscriptionPoller {
   }
 
   async readCredentials() {
-    // Try macOS Keychain first (newer Claude Code stores creds there)
-    try {
-      const { stdout } = await execAsync(
-        'security find-generic-password -s "Claude Code-credentials" -g 2>&1 | grep "^password:" | sed \'s/^password: "//;s/"$//\''
-      )
-      const raw = stdout.trim()
-      if (raw) {
-        const creds = JSON.parse(raw)
-        const oauth = creds.claudeAiOauth
-        if (oauth?.accessToken) {
-          if (oauth.expiresAt && oauth.expiresAt < Date.now()) {
-            throw new Error('Access token has expired')
-          }
-          return oauth
-        }
-      }
-    } catch (keychainErr) {
-      // Fall through to file-based credentials
+    const result = await resolveCredentials()
+    if (!result.credentials) {
+      this.lastError = result.error
     }
-
-    // Fall back to file-based credentials
-    try {
-      const raw = await readFile(CREDENTIALS_PATH, 'utf-8')
-      const creds = JSON.parse(raw)
-      const oauth = creds.claudeAiOauth
-      if (!oauth?.accessToken) {
-        throw new Error('No access token found in credentials')
-      }
-      if (oauth.expiresAt && oauth.expiresAt < Date.now()) {
-        throw new Error('Access token has expired')
-      }
-      return oauth
-    } catch (err) {
-      this.lastError = `Credentials: ${err.message}`
-      return null
-    }
+    return result.credentials
   }
 
   async fetchUsage() {

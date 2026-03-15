@@ -9,6 +9,7 @@ services:
     environment:
       - PORT=3001
       - HOME=/home/node
+      - CLAUDE_CREDENTIALS=${CLAUDE_CREDENTIALS:-}
     restart: unless-stopped
 
   ui:

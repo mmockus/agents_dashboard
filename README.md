@@ -225,13 +225,44 @@ Without `GOOGLE_PROJECT_ID`, the panel shows a "not configured" placeholder and 
 
 **Note**: Quota data has a ~1–2 minute lag (Google Cloud Monitoring ingestion delay). The panel polls every 60 seconds.
 
+## Credentials & Deployment
+
+The server resolves Claude OAuth credentials automatically using a priority chain. No manual configuration is needed for local development on macOS or Linux.
+
+### Credential Resolution Order
+
+| Priority | Source | Platform |
+|----------|--------|----------|
+| 1 | `CLAUDE_CREDENTIALS` env var (JSON string) | All platforms |
+| 2 | macOS Keychain (`security` command) | macOS only |
+| 3 | Windows Credential Manager (PowerShell) | Windows only |
+| 4 | `~/.claude/.credentials.json` file | Universal fallback |
+
+### Local Development
+
+- **macOS**: credentials are read from the Keychain automatically — no config needed.
+- **Linux**: credentials are read from `~/.claude/.credentials.json` automatically.
+- **Windows**: credentials are read from Windows Credential Manager, then from `~/.claude/.credentials.json` as fallback.
+
+### Remote / Docker Deployment
+
+For Docker or any remote Linux host where the credentials file is not present, pass credentials via the `CLAUDE_CREDENTIALS` environment variable:
+
+```bash
+# Generate the env var value from your local machine:
+export CLAUDE_CREDENTIALS=$(cat ~/.claude/.credentials.json | tr -d '\n')
+# Windows PowerShell:
+# $env:CLAUDE_CREDENTIALS = (Get-Content ~/.claude/.credentials.json -Raw)
+
+# Pass it when starting Docker:
+CLAUDE_CREDENTIALS="$CLAUDE_CREDENTIALS" docker compose up
+```
+
+The `compose.yaml` already passes `CLAUDE_CREDENTIALS` through to the server container. See [specs/002-cross-platform-docker/quickstart.md](specs/002-cross-platform-docker/quickstart.md) for the full remote deployment guide.
+
 ## Subscription Usage
 
-The dashboard displays your Claude subscription utilization by reading OAuth credentials from `~/.claude/.credentials.json` and polling the Anthropic usage API.
-
-**Requirements:**
-- Valid Claude Code OAuth session (run `claude` CLI and authenticate)
-- The credentials file contains `claudeAiOauth.accessToken`
+The dashboard displays your Claude subscription utilization by polling the Anthropic usage API with credentials resolved via the priority chain above.
 
 **Data shown:**
 - 5-hour rolling window utilization
